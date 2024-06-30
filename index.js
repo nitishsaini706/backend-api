@@ -28,7 +28,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
     // Routes
     app.use('/', routes);
-
+    app.get("/",async(req,res)=>{
+      res.send("server woring fine. Pelase visit /api-docs for docs")
+    })
     // Swagger API documentation setup
     if (swaggerDocument) {
       app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
