@@ -1,0 +1,419 @@
+openapi: 3.0.0
+info:
+  title: SPYNE API
+  description: API documentation for managing users, discussions, and comments.
+  version: 1.0.0
+paths:
+  /api/auth/signup:
+    post:
+      summary: Create a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                mobileNo:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '201':
+          description: User created successfully
+        '400':
+          description: Bad request (e.g., user already exists)
+        '500':
+          description: Internal server error
+
+  /api/auth/login:
+    post:
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mobileNo:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '401':
+          description: Unauthorized (incorrect password or user not found)
+        '500':
+          description: Internal server error
+
+  /api/users:
+    post:
+      summary: Create a new user
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: User created successfully
+        '401':
+          description: Unauthorized
+
+    get:
+      summary: Get all users
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+
+  /api/users/{id}:
+    post:
+      summary: Update user by ID
+      security:
+        - BearerAuth: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                mobileNo:
+                  type: string
+                email:
+                  type: string
+      responses:
+        '200':
+          description: User updated successfully
+        '401':
+          description: Unauthorized
+        '404':
+          description: User not found
+
+    delete:
+      summary: Delete user by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User deleted successfully
+        '401':
+          description: Unauthorized
+        '404':
+          description: User not found
+
+  /api/users/search:
+    get:
+      summary: Search users by name
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of users matching the name
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+
+  /api/users/follow:
+    post:
+      summary: Follow another user
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                userIdToFollow:
+                  type: string
+      responses:
+        '200':
+          description: User followed successfully
+        '401':
+          description: Unauthorized
+
+  /api/users/unfollow:
+    post:
+      summary: Unfollow a user
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                userIdToUnfollow:
+                  type: string
+      responses:
+        '200':
+          description: User unfollowed successfully
+        '401':
+          description: Unauthorized
+
+  /api/discussions:
+    post:
+      summary: Create a new discussion
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                image:
+                  type: string
+                hashtags:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Discussion created successfully
+        '401':
+          description: Unauthorized
+
+    get:
+      summary: Get discussions by tags
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: tags
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: List of discussions matching the tags
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Discussion'
+        '401':
+          description: Unauthorized
+
+  /api/discussions/{id}:
+    put:
+      summary: Update discussion by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Discussion updated successfully
+        '401':
+          description: Unauthorized
+        '404':
+          description: Discussion not found
+
+  /api/comments:
+    post:
+      summary: Create a new comment
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                discussionId:
+                  type: string
+                  description: ID of the discussion to which the comment belongs
+                text:
+                  type: string
+                  description: Content of the comment
+      responses:
+        '200':
+          description: Comment created successfully
+        '400':
+          description: Bad request (e.g., missing required fields)
+        '500':
+          description: Internal server error
+
+    put:
+      summary: Update a comment
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                commentId:
+                  type: string
+                  description: ID of the comment to update
+                text:
+                  type: string
+                  description: New content of the comment
+      responses:
+        '200':
+          description: Comment updated successfully
+        '400':
+          description: Bad request (e.g., invalid comment ID or missing fields)
+        '404':
+          description: Comment not found
+        '500':
+          description: Internal server error
+
+    delete:
+      summary: Delete a comment
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: commentId
+          schema:
+            type: string
+            description: ID of the comment to delete
+          required: true
+      responses:
+        '200':
+          description: Comment deleted successfully
+        '400':
+          description: Bad request (e.g., missing comment ID)
+        '404':
+          description: Comment not found
+        '500':
+          description: Internal server error
+
+  /commentsByHashtag:
+    get:
+      summary: Find discussions by hashtag
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: hashtag
+          schema:
+            type: string
+            description: Hashtag to search for in discussions
+          required: true
+      responses:
+        '200':
+          description: List of discussions found by hashtag
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Discussion'
+        '400':
+          description: Bad request (e.g., missing hashtag)
+        '500':
+          description: Internal server error
+
+components:
+  securitySchemes:
+      BearerAuth:
+        type: http
+        scheme: bearer
+  schemas:
+    User:
+      type: object
+      properties:
+        name:
+          type: string
+        mobileNo:
+          type: string
+        email:
+          type: string
+
+    Discussion:
+      type: object
+      properties:
+        text:
+          type: string
+        image:
+          type: string
+        hashtags:
+          type: array
+          items:
+            type: string
+    Comment:
+      type: object
+      properties:
+        userId:
+          type: id
+        discussionId:
+          type: id
+        text:
+          type: string
+        createdAt:
+          type: Date
+    
