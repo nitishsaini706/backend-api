@@ -14,7 +14,8 @@
 - can be found on
     1. localhost:3000/api-docs/
     2. https://backend-api-f8vx.onrender.com/api-docs/
-
+- Please create user and create user to get token and use that token in authorize toh access api's
+  
 ## Prerequisites
 
 Before starting, make sure you have the following installed:
