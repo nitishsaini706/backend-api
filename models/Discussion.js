@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const discussionSchema = new mongoose.Schema({
   text: String,
   image: String,
+  userId:{type: mongoose.Schema.Types.ObjectId, ref: 'User'},
   hashtags: [String],
   createdAt: { type: Date, default: Date.now },
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Array of user IDs who liked this discussion
